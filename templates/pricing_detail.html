@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container my-5">
+  <h2>Pricing Proposal for “{{ project.title }}”</h2>
+
+  <p><strong>Type:</strong> {{ proposal.type|capitalize }}</p>
+  <p><strong>Advanced Payment:</strong> {{ proposal.advanced_payment or '—' }}</p>
+  {% if proposal.type == 'fixed' %}
+    <p><strong>Total Charge:</strong> {{ proposal.total_charge }}</p>
+  {% else %}
+    <p><strong>Hourly Rate:</strong> {{ proposal.hourly_rate }}</p>
+    <p><strong>Estimated Hours:</strong> {{ proposal.estimated_hours }}</p>
+  {% endif %}
+
+  <hr/>
+
+  <h4>Stages</h4>
+  <table class="table table-bordered">
+    <thead>
+      <tr>
+        <th>#</th><th>Tech/Details</th><th>Deliverables</th>
+        <th>Amount</th><th>Hours</th><th>Due Date</th>
+        <th>Work Status</th><th>Payment Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for st in proposal.stages %}
+      <tr>
+        <td>{{ st.stage_number }}</td>
+        <td>{{ st.tech_details }}</td>
+        <td>{{ st.deliverables }}</td>
+        <td>{{ st.amount }}</td>
+        <td>{{ st.hours }}</td>
+        <td>{{ st.due_date }}</td>
+        <td>{{ st.work_status }}</td>
+        <td>{{ st.payment_status }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <!-- Dummy Approve button -->
+  <div class="text-center mt-4">
+    <button type="button" class="btn btn-success">Approve</button>
+  </div>
+</div>
+{% endblock %}

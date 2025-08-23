@@ -1,0 +1,45 @@
+{# templates/_notifications.html #}
+<li class="nav-item dropdown mx-2">
+  <a class="nav-link position-relative text-white"
+     href="#"
+     id="notifDropdown"
+     data-bs-toggle="dropdown"
+     aria-expanded="false">
+    🔔
+    {% if notifications|selectattr('is_read', 'equalto', False)|list|length %}
+      <span
+        class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+        {{ notifications|selectattr('is_read', 'equalto', False)|list|length }}
+      </span>
+    {% endif %}
+  </a>
+  <ul class="dropdown-menu dropdown-menu-end"
+      aria-labelledby="notifDropdown"
+      style="min-width:250px; max-height:300px; overflow-y:auto;">
+
+    {% if notifications %}
+      {% for n in notifications %}
+        <li class="dropdown-item d-flex justify-content-between align-items-start {% if not n.is_read %}fw-bold{% endif %}">
+          <div>
+            {{ n.text }}<br>
+            <small class="text-muted">{{ n.created_at.strftime('%Y-%m-%d %H:%M') }}</small>
+          </div>
+          <form method="POST"
+                action="{{ url_for('mark_notification_read', notif_id=n.id) }}">
+            {{ csrf_form.hidden_tag() }}
+            <button class="btn btn-sm btn-link p-0" title="Mark read">
+              ✅
+            </button>
+          </form>
+        </li>
+        {% if not loop.last %}
+          <li><hr class="dropdown-divider"></li>
+        {% endif %}
+      {% endfor %}
+    {% else %}
+      <li class="dropdown-item text-muted">No notifications</li>
+    {% endif %}
+
+  </ul>
+</li>
+

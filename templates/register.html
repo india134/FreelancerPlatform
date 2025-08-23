@@ -1,0 +1,147 @@
+{% extends 'base.html' %}
+
+{% block title %}Sign Up – FreelanceFlow{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-7 col-md-9">
+    <div class="card shadow-lg">
+      <div class="card-header p-4 bg-primary text-white">
+        <h2 class="mb-1"><i class="fas fa-user-plus me-2"></i>Create Your Account</h2>
+        <p class="mb-0">Start managing your freelance business professionally</p>
+      </div>
+      
+      <div class="card-body p-4 p-md-5">
+        <form method="POST" action="{{ url_for('register') }}" novalidate>
+          {{ form.hidden_tag() }}
+          
+          <div class="row">
+            <!-- Full Name -->
+            <div class="col-md-6 mb-3">
+              {{ form.name.label(class="form-label") }}
+              <div class="input-group">
+                <span class="input-group-text bg-light">
+                  <i class="fas fa-user text-muted"></i>
+                </span>
+                {{ form.name(class="form-control", placeholder="John Doe") }}
+              </div>
+              {% for err in form.name.errors %}
+                <div class="text-danger small mt-1">{{ err }}</div>
+              {% endfor %}
+            </div>
+            
+            <!-- Email Address -->
+            <div class="col-md-6 mb-3">
+              {{ form.email.label(class="form-label") }}
+              <div class="input-group">
+                <span class="input-group-text bg-light">
+                  <i class="fas fa-envelope text-muted"></i>
+                </span>
+                {{ form.email(class="form-control", placeholder="you@example.com") }}
+              </div>
+              {% for err in form.email.errors %}
+                <div class="text-danger small mt-1">{{ err }}</div>
+              {% endfor %}
+            </div>
+            
+            <!-- Password -->
+            <div class="col-md-6 mb-3">
+              {{ form.password.label(class="form-label") }}
+              <div class="input-group">
+                <span class="input-group-text bg-light">
+                  <i class="fas fa-lock text-muted"></i>
+                </span>
+                {{ form.password(class="form-control", placeholder="••••••••") }}
+              </div>
+              {% for err in form.password.errors %}
+                <div class="text-danger small mt-1">{{ err }}</div>
+              {% endfor %}
+              <div class="form-text">
+                <small>Use at least 6 characters with letters and numbers</small>
+              </div>
+            </div>
+            
+            <!-- Confirm Password -->
+            <div class="col-md-6 mb-3">
+              {{ form.confirm_password.label(class="form-label") }}
+              <div class="input-group">
+                <span class="input-group-text bg-light">
+                  <i class="fas fa-lock text-muted"></i>
+                </span>
+                {{ form.confirm_password(class="form-control", placeholder="••••••••") }}
+              </div>
+              {% for err in form.confirm_password.errors %}
+                <div class="text-danger small mt-1">{{ err }}</div>
+              {% endfor %}
+            </div>
+            
+            <!-- Country Field (if exists in your form) -->
+            {% if form.country %}
+            <div class="col-md-12 mb-4">
+              {{ form.country.label(class="form-label") }}
+              <div class="input-group">
+                <span class="input-group-text bg-light">
+                  <i class="fas fa-globe text-muted"></i>
+                </span>
+                {{ form.country(class="form-control") }}
+              </div>
+              {% for err in form.country.errors %}
+                <div class="text-danger small mt-1">{{ err }}</div>
+              {% endfor %}
+            </div>
+            {% endif %}
+            
+            <!-- Terms and Conditions Checkbox (WTForms) -->
+          <div class="col-12 mb-4">
+              <div class="form-check">
+                {{ form.agree(class="form-check-input", id="agreeCheck") }}
+                <label class="form-check-label" for="agreeCheck">
+                 I agree to the <a href="#" class="text-primary">Terms of Service</a> and <a href="#" class="text-primary">Privacy Policy</a>
+               </label>
+              </div>
+              {% for err in form.agree.errors %}
+                <div class="text-danger small mt-1">{{ err }}</div>
+              {% endfor %}
+            </div>
+            <!-- Submit Button -->
+            <div class="col-12">
+              <div class="d-grid">
+                {{ form.submit(class="btn btn-primary btn-lg py-2") }}
+              </div>
+            </div>
+          </div>
+        </form>
+        
+        <div class="text-center mt-4">
+          <p class="mb-0">
+            Already have an account? 
+            <a href="{{ url_for('login') }}" class="text-primary fw-semibold">Log in</a>
+          </p>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Trust Factors -->
+    <div class="row mt-4 text-center">
+      <div class="col-md-4 mb-3">
+        <div class="d-flex align-items-center justify-content-center">
+          <i class="fas fa-shield-alt text-primary me-2"></i>
+          <span class="text-muted small">Secure & Encrypted</span>
+        </div>
+      </div>
+      <div class="col-md-4 mb-3">
+        <div class="d-flex align-items-center justify-content-center">
+          <i class="fas fa-rocket text-primary me-2"></i>
+          <span class="text-muted small">Quick Setup</span>
+        </div>
+      </div>
+      <div class="col-md-4 mb-3">
+        <div class="d-flex align-items-center justify-content-center">
+          <i class="fas fa-headset text-primary me-2"></i>
+          <span class="text-muted small">24/7 Support</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

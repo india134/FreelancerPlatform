@@ -1,0 +1,53 @@
+{# templates/add_client.html #}
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-5">
+  <h2>Add a New Client</h2>
+  <form method="POST">
+    {{ form.hidden_tag() }}
+
+    <div class="mb-3">
+      {{ form.name.label(class="form-label") }}
+      {{ form.name(class="form-control") }}
+      {% for err in form.name.errors %}
+        <div class="text-danger small mt-1">{{ err }}</div>
+      {% endfor %}
+    </div>
+
+    <div class="mb-3">
+      {{ form.email.label(class="form-label") }}
+      {{ form.email(class="form-control") }}
+      {% for err in form.email.errors %}
+        <div class="text-danger small mt-1">{{ err }}</div>
+      {% endfor %}
+    </div>
+
+    <div class="mb-3">
+      {{ form.phone.label(class="form-label") }}
+      {{ form.phone(class="form-control") }}
+      {% for err in form.phone.errors %}
+        <div class="text-danger small mt-1">{{ err }}</div>
+      {% endfor %}
+    </div>
+
+    <div class="mb-3">
+      {{ form.notes.label(class="form-label") }}
+      {{ form.notes(class="form-control", rows=3) }}
+      {% for err in form.notes.errors %}
+        <div class="text-danger small mt-1">{{ err }}</div>
+      {% endfor %}
+    </div>
+    
+    <div class="mb-3">
+      {{ form.meeting_link.label(class="form-label") }}
+      {{ form.meeting_link(class="form-control") }}
+      {% for err in form.meeting_link.errors %}
+        <div class="text-danger small mt-1">{{ err }}</div>
+      {% endfor %}
+    </div>
+
+    <button type="submit" class="btn btn-primary">{{ form.submit.label.text }}</button>
+  </form>
+</div>
+{% endblock %}

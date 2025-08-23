@@ -1,0 +1,207 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container my-5">
+
+  <!-- Back link -->
+  <a href="{{ url_for('client_project_detail',
+                      client_id=client.id,
+                      project_id=project.id,
+                      tab='view') }}"
+     class="btn btn-outline-secondary mb-4">
+    ← Back to Proposal
+  </a>
+
+  <!-- HEADER -->
+  <div class="card mb-4 p-4">
+    <div class="row g-3">
+      <!-- Invoice To -->
+      <div class="col-md-6">
+        <h5 class="mb-3">Invoice To</h5>
+        <p class="mb-1"><strong>{{ client.name }}</strong></p>
+        <p class="mb-1">{{ client.email or '–' }}</p>
+        <p class="mb-0">{{ client.phone or '–' }}</p>
+      </div>
+
+      <!-- Invoice Details -->
+      <div class="col-md-6 text-md-end">
+        <h5 class="mb-3">Invoice Details</h5>
+        <p class="mb-1"><strong>Project:</strong> {{ project.title }}</p>
+        <p class="mb-1"><strong>Date:</strong> {{ now.strftime('%Y-%m-%d') }}</p>
+        <p class="mb-0"><strong>Proposal #:</strong> {{ proposal.id }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- INVOICE FORM -->
+  <form method="POST">
+    {{ csrf_form.csrf_token }}
+
+    <!-- STAGE LINES -->
+    <div class="card mb-4">
+      <div class="card-body">
+        <h6 class="mb-3">Stage-wise Costs</h6>
+        <table class="table">
+          <thead>
+            <tr>
+              <th style="width:5%">#</th>
+              <th>Stage Name</th>
+              <th style="width:20%">Cost</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="invoice-lines">
+            {% if proposal.stages %}
+              {% for stage in proposal.stages %}
+                <tr>
+                  <td>{{ loop.index }}</td>
+                  <td>
+                    <input type="text" name="stage_name[]"
+                           class="form-control"
+                           value="{{ stage.tech_details }}"
+                           required>
+                  </td>
+                  <td>
+                    <input type="number" name="stage_cost[]"
+                           step="0.01"
+                           class="form-control text-end"
+                           value="{{ stage.amount }}"
+                           oninput="recalc()"
+                           required>
+                  </td>
+                  <td>
+                    <button type="button"
+                            class="btn btn-sm btn-danger remove-row">🗑</button>
+                  </td>
+                </tr>
+              {% endfor %}
+            {% else %}
+              <tr>
+                <td>1</td>
+                <td>
+                  <input type="text" name="stage_name[]"
+                         class="form-control"
+                         required>
+                </td>
+                <td>
+                  <input type="number" name="stage_cost[]"
+                         step="0.01"
+                         class="form-control text-end"
+                         oninput="recalc()"
+                         required>
+                </td>
+                <td>
+                  <button type="button"
+                          class="btn btn-sm btn-danger remove-row">🗑</button>
+                </td>
+              </tr>
+            {% endif %}
+          </tbody>
+        </table>
+        <button type="button" id="add-stage"
+                class="btn btn-sm btn-outline-primary">
+          + Add Stage
+        </button>
+      </div>
+    </div>
+
+    <!-- SUMMARY -->
+    <div class="card mb-4 p-4">
+      <div class="row g-3">
+        <div class="col-md-4">
+          <label class="form-label">Total Cost</label>
+          <input id="total-cost" name="total_cost"
+                 class="form-control text-end" readonly>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Advance Payment</label>
+          <input id="advance-payment" name="advance_payment"
+                 class="form-control text-end"
+                 value="{{ proposal.advanced_payment }}"
+                 oninput="recalc()">
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Amount Due</label>
+          <input id="amount-due" name="amount_due"
+                 class="form-control text-end" readonly>
+        </div>
+      </div>
+    </div>
+
+    <!-- ACTIONS -->
+    <!-- ACTIONS -->
+  <div class="text-end mb-5">
+    <!-- this submits the form to SAVE/UPDATE -->
+    <button type="submit" class="btn btn-primary">
+      Save Invoice
+    </button>
+
+    {# only show once we have an invoice_id in context #}
+    {% if invoice_id %}
+      <a href="{{ url_for('download_invoice', invoice_id=invoice_id) }}"
+         target="_blank"
+         class="btn btn-success ms-2">
+        Generate Invoice
+      </a>
+    {% endif %}
+  </div>
+
+
+<!-- ADD / REMOVE ROWS & RECALC -->
+<script>
+  function renumber() {
+    document
+      .querySelectorAll('#invoice-lines tr')
+      .forEach((tr,i) => tr.cells[0].textContent = i+1);
+  }
+
+  function recalc() {
+    let total = 0;
+    document
+      .querySelectorAll('input[name="stage_cost[]"]')
+      .forEach(i => total += parseFloat(i.value) || 0);
+
+    document.getElementById('total-cost').value = total.toFixed(2);
+
+    let adv = parseFloat(
+      document.getElementById('advance-payment').value
+    )||0;
+
+    document.getElementById('amount-due').value =
+      (total - adv).toFixed(2);
+  }
+
+  document.getElementById('add-stage').onclick = () => {
+    const tbody = document.getElementById('invoice-lines');
+    const row = tbody.insertRow();
+    row.innerHTML = `
+      <td>0</td>
+      <td><input type="text" name="stage_name[]"
+                 class="form-control" required></td>
+      <td><input type="number" name="stage_cost[]"
+                 step="0.01"
+                 class="form-control text-end"
+                 oninput="recalc()" required></td>
+      <td><button type="button"
+                  class="btn btn-sm btn-danger remove-row">🗑</button></td>`;
+    renumber();
+    recalc();
+  };
+
+  document
+    .getElementById('invoice-lines')
+    .addEventListener('click', e => {
+      if (e.target.matches('.remove-row')) {
+        e.target.closest('tr').remove();
+        renumber();
+        recalc();
+      }
+    });
+
+  document.getElementById('advance-payment').oninput = recalc;
+
+  // initial setup
+  renumber();
+  recalc();
+</script>
+{% endblock %}
+

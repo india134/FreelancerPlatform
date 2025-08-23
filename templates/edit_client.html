@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Client – {{ client.name }}{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+  
+  <div class="card shadow-sm">
+    <div class="card-header">
+      <h3 class="mb-0">Edit Client</h3>
+    </div>
+    <div class="card-body">
+      <form method="POST" action="{{ url_for('edit_client', client_id=client.id) }}">
+        {{ form.hidden_tag() }}
+        <div class="mb-3">
+          {{ form.name.label(class="form-label") }}
+          {{ form.name(class="form-control") }}
+        </div>
+        <div class="mb-3">
+          {{ form.email.label(class="form-label") }}
+          {{ form.email(class="form-control") }}
+        </div>
+        <div class="mb-3">
+          {{ form.phone.label(class="form-label") }}
+          {{ form.phone(class="form-control") }}
+        </div>
+        <div class="mb-3">
+          {{ form.notes.label(class="form-label") }}
+          {{ form.notes(class="form-control", rows=3) }}
+        </div>
+        <div class="mb-3">
+          {{ form.meeting_link.label(class="form-label") }}
+          {{ form.meeting_link(class="form-control") }}
+      
+        </div>
+
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

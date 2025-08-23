@@ -1,0 +1,235 @@
+{# templates/client_dashboard.html #}
+{% extends "base_client.html" %}
+
+{% block title %}Client Dashboard: {{ project.title }}{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+  <div class="row">
+
+    <!-- ========== SIDE PANEL ========== -->
+<aside class="col-md-3 mb-4">
+
+  <!-- Scheduled Meetings -->
+  <div class="card mb-3">
+    <div class="card-header">Scheduled Meetings</div>
+    <ul class="list-group list-group-flush">
+      {% if meetings %}
+        {% for m in meetings %}
+          <li class="list-group-item d-flex align-items-center">
+            <div>
+              <div class="fw-bold">{{ m.when.strftime('%Y-%m-%d %H:%M') }}</div>
+              <div class="small text-muted">{{ m.agenda }}</div>
+            </div>
+            <a href="{{ project.client.meeting_link }}"
+               target="_blank"
+               class="btn btn-sm btn-outline-primary ms-auto">
+              Join
+            </a>
+          </li>
+        {% endfor %}
+      {% else %}
+        <li class="list-group-item text-muted">No meetings scheduled</li>
+      {% endif %}
+    </ul>
+  </div>
+
+  <!-- Revisions -->
+  <div class="card mb-3">
+    <div class="card-header">Revisions</div>
+    <ul class="list-group list-group-flush">
+      {% if revisions %}
+        {% for rev in revisions %}
+          <li class="list-group-item d-flex align-items-center">
+            <div>
+              <div class="fw-bold">#{{ loop.index }} {{ rev.notes }}</div>
+              <div class="small text-muted">{{ rev.created_at.strftime('%Y-%m-%d %H:%M') }}</div>
+            </div>
+            <span class="badge 
+                         {{ 'bg-success' if rev.is_paid else 'bg-warning text-dark' }}
+                         ms-2">
+              {{ 'Completed' if rev.is_paid else 'Pending' }}
+            </span>
+            <form method="POST"
+                  action="{{ url_for('delete_revision', project_id=project.id, rev_id=rev.id) }}"
+                  class="ms-3">
+              {{ csrf_form.hidden_tag() }}
+              <button type="submit" class="btn-close" aria-label="Delete"></button>
+            </form>
+          </li>
+        {% endfor %}
+      {% else %}
+        <li class="list-group-item text-muted">No revisions yet</li>
+      {% endif %}
+    </ul>
+  </div>
+
+  <!-- Invoices -->
+  <div class="card mb-3">
+    <div class="card-header">Invoices</div>
+    <ul class="list-group list-group-flush">
+      {% if invoices %}
+        {% for inv in invoices %}
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            <div class="small">{{ inv.created_at.strftime('%Y-%m-%d') }}</div>
+            <a href="{{ url_for('download_invoice', invoice_id=inv.id) }}"
+               class="small">
+              PDF
+            </a>
+          </li>
+        {% endfor %}
+      {% else %}
+        <li class="list-group-item text-muted">No invoices</li>
+      {% endif %}
+    </ul>
+  </div>
+
+</aside>
+
+
+    <!-- ========== MAIN CLIENT VIEW ========== -->
+    <main class="col-md-9">
+
+      <!-- Project Overview -->
+      <div class="card mb-4">
+        <div class="card-body">
+          <h2 class="card-title">{{ project.title }}</h2>
+          <p class="card-text">
+            {{ project.description or '— No description provided —' }}
+          </p>
+          <dl class="row">
+            <dt class="col-sm-3">Start Date</dt>
+            <dd class="col-sm-9">{{ project.start_date }}</dd>
+            <dt class="col-sm-3">End Date</dt>
+            <dd class="col-sm-9">{{ project.end_date }}</dd>
+            <dt class="col-sm-3">Currency</dt>
+            <dd class="col-sm-9">{{ project.currency }}</dd>
+            <dt class="col-sm-3">Freelancer</dt>
+            <dd class="col-sm-9">{{ project.client.freelancer.name }}</dd>
+          </dl>
+        </div>
+      </div>
+
+      {% if proposal %}
+        <!-- Proposal Summary -->
+        <div class="card mb-4">
+          <div class="card-header"><h5>Proposal #{{ proposal.id }}</h5></div>
+          <div class="card-body">
+            <p><strong>Type:</strong> {{ proposal.type.capitalize() }}</p>
+            {% if proposal.type=='fixed' %}
+              <p><strong>Total:</strong> {{ proposal.total_charge }}</p>
+              <p><strong>Advance:</strong> {{ proposal.advanced_payment }}</p>
+            {% else %}
+              <p><strong>Rate:</strong>
+                 {{ proposal.hourly_rate }} × {{ proposal.estimated_hours }} hrs
+              </p>
+            {% endif %}
+            <hr>
+            <h6>Stages Breakdown</h6>
+            <table class="table table-sm">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Tech Details</th>
+                  <th>Deliverables</th>
+                  <th>Amount</th>
+                  <th>Hours</th>
+                  <th>Work Status</th>
+                  <th>Payment Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for st in proposal.stages %}
+                  <tr>
+                    <td>{{ st.stage_number }}</td>
+                    <td>{{ st.tech_details }}</td>
+                    <td>{{ st.deliverables }}</td>
+                    <td>{{ st.amount }}</td>
+                    <td>{{ st.hours }}</td>
+                    <td>{{ st.work_status }}</td>
+                    <td>{{ st.payment_status }}</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+            <div class="d-flex justify-content-between mt-3">
+              <form method="POST"
+                    action="{{ url_for('client_approve_proposal',
+                                       proposal_id=proposal.id,
+                                       token=link.token) }}">
+                {{ csrf_form.hidden_tag() }}
+                <button type="submit"
+                        class="btn btn-success"
+                        {% if proposal.approved_by_client %}disabled{% endif %}>
+                  {% if proposal.approved_by_client %}✔ Approved{% else %}Approve{% endif %}
+                </button>
+              </form>
+              <form method="POST"
+                    action="{{ url_for('client_request_change',
+                                       proposal_id=proposal.id,
+                                       token=link.token) }}"
+                    class="d-flex w-50">
+                {{ csrf_form.hidden_tag() }}
+                <input type="text" name="message"
+                       class="form-control form-control-sm me-2"
+                       placeholder="Request change…"
+                       required>
+                <button class="btn btn-outline-secondary btn-sm">
+                  ✏️ Request
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <!-- Live Progress (read-only) -->
+        <div class="card mb-4">
+          <div class="card-header"><h5>Live Progress</h5></div>
+          <div class="card-body">
+            {% for stage in stages %}
+              <div class="mb-4">
+                <h6>Stage {{ stage.stage_number }}: {{ stage.tech_details }}</h6>
+                <div class="row g-3">
+                  {% for ph in phases + ['Payment'] %}
+                    <div class="col-md-3">
+                      <button class="btn w-100 mb-2
+                        {% if ph != 'Payment' %}
+                          {% if statuses[stage.id][ph] == 'Complete' %}btn-success{% else %}btn-outline-secondary{% endif %}
+                        {% else %}
+                          {% if stage.payment_status == 'paid' %}btn-success{% else %}btn-outline-secondary{% endif %}
+                        {% endif %}"
+                        disabled>
+                        {{ ph }} – 
+                        {% if ph != 'Payment' %}
+                          {{ statuses[stage.id][ph] }}
+                        {% else %}
+                          {{ stage.payment_status.capitalize() }}
+                        {% endif %}
+                      </button>
+                      {% if ph != 'Payment' %}
+                        <ul class="list-group list-group-flush">
+                          {% for c in comments[stage.id][ph] %}
+                            <li class="list-group-item py-1">
+                              {{ c.content }}<br>
+                              <small class="text-muted">
+                                {{ c.created_at.strftime('%Y-%m-%d %H:%M') }}
+                              </small>
+                            </li>
+                          {% endfor %}
+                        </ul>
+                      {% endif %}
+                    </div>
+                  {% endfor %}
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      {% else %}
+        <div class="alert alert-info">No proposal has been approved yet.</div>
+      {% endif %}
+
+    </main>
+  </div>
+</div>
+{% endblock %}

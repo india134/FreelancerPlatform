@@ -1,0 +1,168 @@
+{# templates/pricing_view.html #}
+<div class="card mb-4">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <h5 class="mb-0">Proposal #{{ proposal.id }}</h5>
+    <span class="badge 
+          {% if proposal.approved_by_client %}bg-success
+          {% else %}bg-warning text-dark{% endif %}">
+      {% if proposal.approved_by_client %}Approved{% else %}Pending{% endif %}
+    </span>
+  </div>
+
+  <div class="card-body">
+    <p><strong>Type:</strong> {{ proposal.type.capitalize() }}</p>
+
+    {% if proposal.type == 'fixed' %}
+      <p><strong>Total Charge:</strong> {{ proposal.total_charge }}</p>
+      <p><strong>Advance:</strong> {{ proposal.advanced_payment }}</p>
+    {% else %}
+      <p>
+        <strong>Hourly Rate:</strong>
+        {{ proposal.hourly_rate }} &times; {{ proposal.est_hours }} hrs
+      </p>
+    {% endif %}
+
+    <hr>
+
+    <h6>Stages Breakdown</h6>
+    <table class="table table-striped">
+      <thead class="table-light">
+        <tr>
+          <th>#</th>
+          <th>Tech Details</th>
+          <th>Deliverables</th>
+          <th>Amount</th>
+          <th>Hours</th>
+          <th>Work Status</th>
+          <th>Payment Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for st in proposal.stages %}
+          <tr>
+            <td>{{ st.stage_number }}</td>
+            <td>{{ st.tech_details }}</td>
+            <td>{{ st.deliverables }}</td>
+            <td>{{ st.amount }}</td>
+            <td>{{ st.hours }}</td>
+            <td>{{ st.work_status }}</td>
+            <td>{{ st.payment_status }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card-footer d-flex justify-content-between align-items-center">
+    <!-- left‐side: invoice & progress -->
+    <div class="card-footer d-flex justify-content-between align-items-center">
+    <!-- left side: Invoice & Progress -->
+    <a
+  href="{{ url_for('invoice_form', prop_id=proposal.id,client_id=project.client_id,project_id=project.id) }}"
+  class="btn btn-outline-dark me-2"
+  {% if not proposal.approved_by_client %}aria-disabled="true" tabindex="-1"{% endif %}  >
+      🧾 Invoice
+  </a>
+
+
+     <a href="{{ url_for('project_tracking',
+                    client_id=project.client_id,
+                    project_id=project.id) }}"
+   class="btn btn-info">
+  <i class="bi bi-bar-chart"></i> Progress
+</a>
+
+
+    <!-- right‐side: your existing actions -->
+    <div class="d-flex align-items-center">
+      {% if not proposal.approved_by_client %}
+        <a href="#"
+           class="btn btn-outline-secondary me-2">
+          Request Changes
+        </a>
+      {% endif %}
+
+      <a
+        href="{{ url_for(
+                 'client_project_detail',
+                 client_id=project.client_id,
+                 project_id=project.id,
+                 tab='pricing',
+                 proposal_id=proposal.id
+               ) }}"
+        class="btn btn-primary me-2">
+        Edit
+      </a>
+
+    <div class="card-footer">
+  {% if not proposal.approved_by_client %}
+    <span class="badge bg-warning text-dark">
+      ⏳ Pending client approval
+    </span>
+  {% else %}
+    <span class="badge bg-success">✅ Approved by client</span>
+  {% endif %}
+
+  {% if change_requests %}
+    <button class="btn btn-outline-info ms-3"
+            data-bs-toggle="collapse"
+            data-bs-target="#client-requests">
+      📩 View Client Requests
+    </button>
+    <div class="collapse mt-2" id="client-requests">
+      <ul class="list-group">
+        {% for cr in change_requests %}
+          <li class="list-group-item">
+            {{ cr.content }}
+            <br>
+            <small class="text-muted">
+              {{ cr.created_at.strftime('%Y-%m-%d %H:%M') }}
+            </small>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+  {% endif %}
+</div>
+{# Show client’s change requests, if any #}
+{% if proposal.change_requests %}
+  <div class="alert alert-warning mt-3">
+    <h6>Client requested changes:</h6>
+    <ul class="mb-0">
+      {% for req in proposal.change_requests %}
+        <li>
+          {{ req.content }} 
+          <small class="text-muted">— {{ req.created_at.strftime('%Y-%m-%d %H:%M') }}</small>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+{% endif %}
+</div>
+
+      <form
+        action="{{ url_for('delete_proposal', proposal_id=proposal.id) }}"
+        method="POST"
+        class="d-inline"
+        onsubmit="return confirm('Delete proposal #{{ proposal.id }}?');">
+        {{ csrf_form.csrf_token }}
+        <button type="submit" class="btn btn-outline-danger">
+          🗑 Delete
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+{# stubs for your Invoice/Progress JS — replace with real modals/logic #}
+<script>
+  function openInvoiceModal(proposalId) {
+    alert("🌒 Invoice modal for proposal #" + proposalId + " (coming soon)");
+  }
+
+  function toggleProgressView(proposalId) {
+    alert("📈 Show progress for proposal #" + proposalId + " (coming soon)");
+  }
+</script>
+
+
+

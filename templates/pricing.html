@@ -1,0 +1,157 @@
+{# pricing.html #}
+<div class="card mt-4">
+  <div class="card-header">
+    <h4 class="mb-0">
+      {% if existing_proposal %}
+        Edit Pricing Proposal
+      {% else %}
+        Create Pricing Proposal
+      {% endif %}
+    </h4>
+  </div>
+  <div class="card-body">
+    <form method="POST"
+          action="{{ url_for('pricing', project_id=project.id) }}">
+      {{ form.hidden_tag() }}
+
+      <!-- proposal type radio -->
+      <div class="mb-4">
+        <label class="form-label">Proposal Type</label><br>
+        {% for choice, label in form.type.choices %}
+          <div class="form-check form-check-inline">
+            <input class="form-check-input"
+                   type="radio"
+                   name="{{ form.type.name }}"
+                   id="type-{{ choice }}"
+                   value="{{ choice }}"
+                   {% if form.type.data == choice %}checked{% endif %}>
+            <label class="form-check-label" for="type-{{ choice }}">
+              {{ label }}
+            </label>
+          </div>
+        {% endfor %}
+      </div>
+
+      <!-- fixed fields -->
+      <div id="fixed-fields" class="mb-4">
+        <div class="row g-3">
+          <div class="col-md-6">
+            {{ form.advanced_payment.label(class="form-label") }}
+            {{ form.advanced_payment(class="form-control") }}
+            {% for e in form.advanced_payment.errors %}
+              <div class="text-danger small">{{ e }}</div>
+            {% endfor %}
+          </div>
+          <div class="col-md-6">
+            {{ form.total_charge.label(class="form-label") }}
+            {{ form.total_charge(class="form-control") }}
+            {% for e in form.total_charge.errors %}
+              <div class="text-danger small">{{ e }}</div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+
+      <!-- hourly fields -->
+      <div id="hourly-fields" class="mb-4">
+        <div class="row g-3">
+          <div class="col-md-4">
+            {{ form.advanced_payment.label(class="form-label") }}
+            {{ form.advanced_payment(class="form-control") }}
+            {% for e in form.advanced_payment.errors %}
+              <div class="text-danger small">{{ e }}</div>
+            {% endfor %}
+          </div>
+          <div class="col-md-4">
+            {{ form.hourly_rate.label(class="form-label") }}
+            {{ form.hourly_rate(class="form-control") }}
+            {% for e in form.hourly_rate.errors %}
+              <div class="text-danger small">{{ e }}</div>
+            {% endfor %}
+          </div>
+          <div class="col-md-4">
+            {{ form.estimated_hours.label(class="form-label") }}
+            {{ form.estimated_hours(class="form-control") }}
+            {% for e in form.estimated_hours.errors %}
+              <div class="text-danger small">{{ e }}</div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+
+      <hr class="my-4"/>
+
+      <!-- breakdown by stage -->
+      <h5>Breakdown by Stage</h5>
+      <table class="table table-bordered" id="stages-table">
+        <thead class="table-light">
+          <tr>
+            <th>#</th>
+            <th>Tech / Details</th>
+            <th>Deliverables</th>
+            <th>Amount</th>
+            <th>Hours</th>
+            <th>Due Date</th>
+            <th>Work Status</th>
+            <th>Payment Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for sub in form.stages %}
+          <tr>
+            <td class="stage-number">{{ loop.index }}</td>
+            <td>{{ sub.tech_details(class="form-control") }}</td>
+            <td>{{ sub.deliverables(class="form-control") }}</td>
+            <td>{{ sub.amount(class="form-control") }}</td>
+            <td>{{ sub.hours(class="form-control") }}</td>
+            <td>{{ sub.due_date(class="form-control", type="date") }}</td>
+            <td>{{ sub.work_status(class="form-select") }}</td>
+            <td>{{ sub.payment_status(class="form-select") }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <button type="button" id="add-stage" class="btn btn-secondary mb-3">
+        + Add Stage
+      </button>
+
+      <div>
+        <button type="submit" class="btn btn-primary">
+          {{ form.submit.label.text }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+// toggle fixed vs hourly
+function updateFields(){
+  const t = document.querySelector('input[name="{{ form.type.name }}"]:checked').value;
+  document.getElementById('fixed-fields').style.display = t==='fixed' ? '' : 'none';
+  document.getElementById('hourly-fields').style.display = t==='hourly' ? '' : 'none';
+}
+document.querySelectorAll('input[name="{{ form.type.name }}"]')
+        .forEach(el=>el.addEventListener('change', updateFields));
+document.addEventListener('DOMContentLoaded', updateFields);
+
+// add‐stage button
+document.getElementById('add-stage').addEventListener('click', ()=>{
+  const table = document.querySelector('#stages-table tbody');
+  const lastRow = table.querySelector('tr:last-child');
+  const newRow = lastRow.cloneNode(true);
+
+  // clear inputs
+  newRow.querySelectorAll('input, select, textarea').forEach(i=>{
+    i.value = '';
+  });
+
+  table.appendChild(newRow);
+
+  // re-number
+  table.querySelectorAll('td.stage-number').forEach((td,i)=>{
+    td.textContent = i+1;
+  });
+});
+</script>
+

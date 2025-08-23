@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block title %}Project: {{ project.title }}{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+  <!-- PROJECT HEADER -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>{{ project.title }}</h2>
+    <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">
+      ← Back to Dashboard
+    </a>
+  </div>
+<div class="d-flex align-items-center mb-3">
+    <form method="POST"
+          action="{{ url_for('toggle_shared_link', project_id=project.id) }}"
+          class="d-inline">
+      {{ csrf_form.csrf_token }}
+      {% if project.shared_link and project.shared_link.is_active %}
+        <button type="submit" class="btn btn-sm btn-outline-danger">
+          🔒 Deactivate Share Link
+        </button>
+      {% else %}
+        <button type="submit" class="btn btn-sm btn-outline-primary">
+          🔗 Share Dashboard
+        </button>
+      {% endif %}
+    </form>
+
+    {% if project.shared_link and project.shared_link.is_active %}
+      <input type="text"
+             class="form-control form-control-sm w-auto ms-2"
+             readonly
+             value="{{ 
+               url_for('client_dashboard',
+                       token=project.shared_link.token,
+                       _external=True)
+             }}">
+    {% endif %}
+  </div>
+  <!-- TABS -->
+  <ul class="nav nav-tabs">
+    <li class="nav-item">
+      <a class="nav-link {{ 'active' if active_tab=='overview' else '' }}"
+         href="{{ url_for('client_project_detail',
+                          client_id=project.client_id,
+                          project_id=project.id,
+                          tab='overview') }}">
+        Overview
+      </a>
+    </li>
+
+    <li class="nav-item">
+      <a class="nav-link {{ 'active' if active_tab=='pricing' else '' }}"
+         href="{{ url_for('client_project_detail',
+                          client_id=project.client_id,
+                          project_id=project.id,
+                          tab='pricing') }}">
+        Create Pricing
+      </a>
+    </li>
+
+    {% if existing_proposals %}
+      <li class="nav-item">
+        <a class="nav-link {{ 'active' if active_tab=='view' else '' }}"
+           href="{{ url_for('client_project_detail',
+                            client_id=project.client_id,
+                            project_id=project.id,
+                            tab='view') }}">
+          View Pricing
+        </a>
+      </li>
+    {% endif %}
+
+    <!-- right-aligned tracking link -->
+    <li class="nav-item ms-auto">
+      <a class="nav-link {{ 'active' if active_tab=='tracking' else '' }}"
+         href="{{ url_for('project_tracking',
+                          client_id=project.client_id,
+                          project_id=project.id) }}">
+        Project Tracking
+      </a>
+    </li>
+  </ul>
+
+  <!-- TAB CONTENT -->
+  <div class="tab-content mt-3">
+    <!-- OVERVIEW -->
+    <div class="tab-pane fade {{ 'show active' if active_tab=='overview' else '' }}"
+         id="overview">
+      {% include 'project_overview_card.html' %}
+    </div>
+
+    <!-- CREATE / EDIT PRICING -->
+    <div class="tab-pane fade {{ 'show active' if active_tab=='pricing' else '' }}"
+         id="pricing">
+      {% include 'pricing.html' %}
+    </div>
+
+    <!-- VIEW PRICING -->
+    {% if existing_proposals %}
+    <div class="tab-pane fade {{ 'show active' if active_tab=='view' else '' }}"
+         id="view">
+      {% for proposal in existing_proposals %}
+        {% include 'pricing_view.html' %}
+        {# Separator between multiple proposals #}
+        {% if not loop.last %}<hr>{% endif %}
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

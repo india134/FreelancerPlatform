@@ -1,0 +1,109 @@
+{% extends "base_public.html" %}
+{% block title %}Simplify Your Freelance Workflow – EaseFreelancing{% endblock %}
+
+{% block content %}
+
+<!-- Hero Section -->
+<section class="py-5 text-center">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <h1 class="display-4 fw-bold mb-3">All-in-One Freelancer Management</h1>
+      <p class="lead text-muted mb-4">
+        From proposals to payments, track every phase of your projects—and get paid faster.
+      </p>
+      <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+        <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg px-4">
+          Get Started Free
+        </a>
+        <a href="{{ url_for('login') }}" class="btn btn-outline-light btn-lg px-4">
+          Log In
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Features Section -->
+<section class="py-5 bg-light">
+  <div class="container">
+    <h2 class="text-center fw-bold mb-5">Designed for Freelancers Like You</h2>
+    <div class="row g-4">
+      <div class="col-md-6 col-lg-3">
+        <div class="card h-100 border-0 shadow-sm text-center p-4">
+          <i class="bi bi-people-fill fs-1 text-primary mb-3"></i>
+          <h5 class="fw-bold">Client Profiles</h5>
+          <p class="text-muted mb-0">
+            Store all contacts, notes & custom meeting links per client—no more scattered info.
+          </p>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-3">
+        <div class="card h-100 border-0 shadow-sm text-center p-4">
+          <i class="bi bi-kanban-fill fs-1 text-primary mb-3"></i>
+          <h5 class="fw-bold">Project Stages</h5>
+          <p class="text-muted mb-0">
+            Break your work into Planning → Execution → Review → Payment phases.
+          </p>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-3">
+        <div class="card h-100 border-0 shadow-sm text-center p-4">
+          <i class="bi bi-pencil-square fs-1 text-primary mb-3"></i>
+          <h5 class="fw-bold">Revision Requests</h5>
+          <p class="text-muted mb-0">
+            Clients can log revisions tied to meetings or standalone with notes, cost, and status.
+          </p>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-3">
+        <div class="card h-100 border-0 shadow-sm text-center p-4">
+          <i class="bi bi-receipt-cutoff fs-1 text-primary mb-3"></i>
+          <h5 class="fw-bold">Invoicing</h5>
+          <p class="text-muted mb-0">
+            Create professional invoices, track paid/unpaid, and send reminders in seconds.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Visual Demo -->
+<section class="py-5">
+  <div class="container">
+    <div class="row align-items-center gx-5">
+      <div class="col-md-6 mb-4 mb-md-0">
+        <img
+          src="https://via.placeholder.com/600x400.png?text=Dashboard+Demo"
+          alt="EaseFreelancing Dashboard"
+          class="img-fluid rounded shadow-sm"
+        >
+      </div>
+      <div class="col-md-6">
+        <h3 class="fw-bold mb-3">Your Workflow, Crystal Clear</h3>
+        <p class="text-muted mb-4">
+          Our intuitive dashboard surfaces upcoming meetings, payment statuses, and more—so you never miss a beat.
+        </p>
+        <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg">
+          Try It Yourself
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Final Call to Action -->
+<section class="py-5 text-center bg-primary text-white">
+  <div class="container">
+    <h2 class="fw-bold mb-3">Ready to Streamline Your Freelance Business?</h2>
+    <p class="lead mb-4">
+      Join thousands of freelancers using EaseFreelancing—no credit card required.
+    </p>
+    <a href="{{ url_for('register') }}" class="btn btn-lg btn-light px-5">
+      Get Started Free
+    </a>
+  </div>
+</section>
+
+{% endblock %}
+
